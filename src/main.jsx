@@ -113,58 +113,93 @@ function CustomCursor() {
   const cursorRef = useRef(null);
   const canvasRef = useRef(null);
 
-  useEffect(() => {
-    const cursor = cursorRef.current;
-    const canvas = canvasRef.current;
-    if (!cursor || !canvas) return;
+  
 
-    const ctx = canvas.getContext("2d");
-    const pointer = { x: -100, y: -100 };
-    const smooth = { x: -100, y: -100 };
+useEffect(() => {
+  const cursor = cursorRef.current;
+  const canvas = canvasRef.current;
 
-    let drawing = false;
-    let lastPoint = null;
-    let animationFrame;
-    let strokes = [];
+  if (!cursor || !canvas) return;
 
-    const resize = () => {
-      const dpr = window.devicePixelRatio || 1;
-      canvas.width = window.innerWidth * dpr;
-      canvas.height = window.innerHeight * dpr;
-      canvas.style.width = `${window.innerWidth}px`;
-      canvas.style.height = `${window.innerHeight}px`;
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    };
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return;
 
-    const move = (event) => {
-      pointer.x = event.clientX;
-      pointer.y = event.clientY;
+  const pointer = { x: -100, y: -100 };
+  const smooth = { x: -100, y: -100 };
 
-      const interactive = event.target.closest(
-        "a, button, input, textarea, .project-row"
-      );
+  let drawing = false;
+  let lastPoint = null;
+  let animationFrame;
+  let strokes = [];
 
-      cursor.classList.toggle("cursor-hover", !!interactive);
+  // Prevent native dragging of links and images
+const preventNativeDrag = (event) => {
+  if (event.target.closest?.("a, img")) {
+    event.preventDefault();
+  }
+};
+  // Adjust canvas size to match the screen
+  const resize = () => {
+    const dpr = window.devicePixelRatio || 1;
 
-      if (drawing && lastPoint) {
-        strokes.push({
-          x1: lastPoint.x,
-          y1: lastPoint.y,
-          x2: pointer.x,
-          y2: pointer.y,
-          life: 1
-        });
-      }
+    canvas.width = window.innerWidth * dpr;
+    canvas.height = window.innerHeight * dpr;
 
-      lastPoint = { x: pointer.x, y: pointer.y };
-    };
+    canvas.style.width = `${window.innerWidth}px`;
+    canvas.style.height = `${window.innerHeight}px`;
 
-    const down = (event) => {
-      if (event.button !== 0) return;
-      drawing = true;
-      lastPoint = { x: event.clientX, y: event.clientY };
-      cursor.classList.add("cursor-down");
-    };
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  };
+
+
+    
+
+const move = (event) => {
+  pointer.x = event.clientX;
+  pointer.y = event.clientY;
+
+  const interactive = event.target?.closest?.(
+    "a, button, input, textarea, .project-row"
+  );
+
+  cursor.classList.toggle("cursor-hover", !!interactive);
+
+  // Detect whether the left mouse button is held down
+  const isDragging = drawing && (event.buttons & 1) === 1;
+
+  if (isDragging && lastPoint) {
+    const dx = pointer.x - lastPoint.x;
+    const dy = pointer.y - lastPoint.y;
+
+    if (Math.hypot(dx, dy) > 0) {
+      strokes.push({
+        x1: lastPoint.x,
+        y1: lastPoint.y,
+        x2: pointer.x,
+        y2: pointer.y,
+        life: 1
+      });
+    }
+  }
+
+  lastPoint = {
+    x: pointer.x,
+    y: pointer.y
+  };
+};
+
+
+   const down = (event) => {
+  if (event.button !== 0) return;
+
+  drawing = true;
+  lastPoint = {
+    x: event.clientX,
+    y: event.clientY
+  };
+
+  cursor.classList.add("cursor-down");
+};
 
     const up = () => {
       drawing = false;
@@ -187,42 +222,66 @@ function CustomCursor() {
         ctx.beginPath();
         ctx.moveTo(stroke.x1, stroke.y1);
         ctx.lineTo(stroke.x2, stroke.y2);
-        ctx.strokeStyle = `rgba(110, 23, 52, ${stroke.life * 0.85})`;
-        ctx.lineWidth = 1.5 * stroke.life;
+        ctx.strokeStyle = `rgba(130, 20, 48, ${stroke.life})`;
+ctx.lineWidth = 2.5 * stroke.life;
         ctx.lineCap = "round";
         ctx.stroke();
-
-        stroke.life -= 0.025;
+stroke.life -= 0.012;
       });
 
       animationFrame = requestAnimationFrame(render);
     };
 
+   
     resize();
     render();
 
+    // Register mouse and pointer events
     window.addEventListener("resize", resize);
-    window.addEventListener("pointermove", move);
-    window.addEventListener("pointerdown", down);
-    window.addEventListener("pointerup", up);
-    window.addEventListener("pointercancel", up);
+    window.addEventListener("pointermove", move, true);
+    window.addEventListener("pointerdown", down, true);
+    window.addEventListener("pointerup", up, true);
+    window.addEventListener("pointercancel", up, true);
     window.addEventListener("blur", up);
 
+    // Prevent browser from dragging links and images
+    document.addEventListener(
+      "dragstart",
+      preventNativeDrag,
+      true
+    );
+
+    // Clean up event listeners
     return () => {
       cancelAnimationFrame(animationFrame);
+
       window.removeEventListener("resize", resize);
-      window.removeEventListener("pointermove", move);
-      window.removeEventListener("pointerdown", down);
-      window.removeEventListener("pointerup", up);
-      window.removeEventListener("pointercancel", up);
+      window.removeEventListener("pointermove", move, true);
+      window.removeEventListener("pointerdown", down, true);
+      window.removeEventListener("pointerup", up, true);
+      window.removeEventListener("pointercancel", up, true);
       window.removeEventListener("blur", up);
+
+      document.removeEventListener(
+        "dragstart",
+        preventNativeDrag,
+        true
+      );
     };
   }, []);
 
   return (
     <>
-      <canvas ref={canvasRef} className="cursor-trail" />
-      <div ref={cursorRef} className="custom-cursor" />
+      <canvas
+        ref={canvasRef}
+        className="cursor-trail"
+        aria-hidden="true"
+      />
+      <div
+        ref={cursorRef}
+        className="custom-cursor"
+        aria-hidden="true"
+      />
     </>
   );
 }
@@ -237,19 +296,60 @@ function Header({ theme, setTheme }) {
     ["Achievements", "#achievements"],
     ["Contact", "#contact"]
   ];
+  const navRef = useRef(null);
+const indicatorRef = useRef(null);
+
+const moveIndicator = (event) => {
+  const nav = navRef.current;
+  const indicator = indicatorRef.current;
+  if (!nav || !indicator) return;
+
+  const link = event.currentTarget;
+  const navRect = nav.getBoundingClientRect();
+  const linkRect = link.getBoundingClientRect();
+
+  indicator.style.width = `${linkRect.width}px`;
+  indicator.style.transform =
+    `translateX(${linkRect.left - navRect.left}px)`;
+
+  indicator.style.opacity = "1";
+};
+
+const hideIndicator = () => {
+  if (indicatorRef.current) {
+    indicatorRef.current.style.opacity = "0";
+  }
+};
 
   return (
     <header className="header">
       <div className="container header-inner">
         <a href="#home" className="brand">ALLIYAH<span>.</span></a>
 
-        <nav className={menu ? "nav open" : "nav"}>
-          {links.map(([label, href]) => (
-            <a key={href} href={href} onClick={() => setMenu(false)}>
-              {label}
-            </a>
-          ))}
-        </nav>
+        
+<nav
+  ref={navRef}
+  className={menu ? "nav open" : "nav"}
+  onMouseLeave={hideIndicator}
+>
+  {links.map(([label, href]) => (
+    <a
+      key={href}
+      href={href}
+      onMouseEnter={moveIndicator}
+      onClick={() => setMenu(false)}
+    >
+      {label}
+    </a>
+  ))}
+
+  <span
+    ref={indicatorRef}
+    className="nav-indicator"
+    aria-hidden="true"
+  />
+</nav>
+
 
         <div className="header-actions">
           <button
@@ -830,12 +930,14 @@ function Contact() {
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const submit = e => {
+ 
+  const submit = (e) => {
     e.preventDefault();
 
     const subject = encodeURIComponent(
       form.subject || `Portfolio inquiry from ${form.name}`
     );
+
     const body = encodeURIComponent(
       `From: ${form.name}\nEmail: ${form.email}\n\n${form.message}`
     );

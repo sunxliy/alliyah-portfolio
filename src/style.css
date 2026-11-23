@@ -46,7 +46,7 @@ button { cursor: pointer; }
 a { text-decoration: none; color: inherit; }
 img { display: block; max-width: 100%; }
 
-::selection { background: var(--burgundy); color: white; }
+::selection { background: rgba(130, 20, 48, 0.65); color: white; }
 
 .container {
   width: min(1180px, calc(100% - 100px));
@@ -1735,5 +1735,59 @@ img { display: block; max-width: 100%; }
   .intro-circle,
   .intro-line {
     animation: none;
+  }
+}
+
+
+.cursor-trail {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 99998;
+  pointer-events: none;
+}
+
+.custom-cursor {
+  position: fixed;
+  z-index: 99999;
+  pointer-events: none;
+}
+
+
+/* ANIMATED NAVIGATION UNDERLINE */
+
+.nav {
+  position: relative;
+}
+
+.nav-indicator {
+  position: absolute;
+  left: 0;
+  bottom: -10px;
+
+  height: 1px;
+  width: 0;
+
+  background: var(--burgundy);
+  border-radius: 10px;
+
+  opacity: 0;
+  pointer-events: none;
+
+  transition:
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    width 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.2s ease;
+}
+
+.nav a {
+  position: relative;
+  z-index: 1;
+}
+
+@media (max-width: 768px) {
+  .nav-indicator {
+    display: none;
   }
 }
