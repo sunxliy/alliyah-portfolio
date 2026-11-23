@@ -109,6 +109,124 @@ function ImageFrame({ src, title }) {
   );
 }
 
+function CustomCursor() {
+  const cursorRef = useRef(null);
+  const canvasRef = useRef(null);
+
+  useEffect(() => {
+    const cursor = cursorRef.current;
+    const canvas = canvasRef.current;
+    if (!cursor || !canvas) return;
+
+    const ctx = canvas.getContext("2d");
+    const pointer = { x: -100, y: -100 };
+    const smooth = { x: -100, y: -100 };
+
+    let drawing = false;
+    let lastPoint = null;
+    let animationFrame;
+    let strokes = [];
+
+    const resize = () => {
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = window.innerWidth * dpr;
+      canvas.height = window.innerHeight * dpr;
+      canvas.style.width = `${window.innerWidth}px`;
+      canvas.style.height = `${window.innerHeight}px`;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+
+    const move = (event) => {
+      pointer.x = event.clientX;
+      pointer.y = event.clientY;
+
+      const interactive = event.target.closest(
+        "a, button, input, textarea, .project-row"
+      );
+
+      cursor.classList.toggle("cursor-hover", !!interactive);
+
+      if (drawing && lastPoint) {
+        strokes.push({
+          x1: lastPoint.x,
+          y1: lastPoint.y,
+          x2: pointer.x,
+          y2: pointer.y,
+          life: 1
+        });
+      }
+
+      lastPoint = { x: pointer.x, y: pointer.y };
+    };
+
+    const down = (event) => {
+      if (event.button !== 0) return;
+      drawing = true;
+      lastPoint = { x: event.clientX, y: event.clientY };
+      cursor.classList.add("cursor-down");
+    };
+
+    const up = () => {
+      drawing = false;
+      lastPoint = null;
+      cursor.classList.remove("cursor-down");
+    };
+
+    const render = () => {
+      smooth.x += (pointer.x - smooth.x) * 0.2;
+      smooth.y += (pointer.y - smooth.y) * 0.2;
+
+      cursor.style.transform =
+        `translate3d(${smooth.x}px, ${smooth.y}px, 0) translate(-50%, -50%)`;
+
+      ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+
+      strokes = strokes.filter((stroke) => stroke.life > 0);
+
+      strokes.forEach((stroke) => {
+        ctx.beginPath();
+        ctx.moveTo(stroke.x1, stroke.y1);
+        ctx.lineTo(stroke.x2, stroke.y2);
+        ctx.strokeStyle = `rgba(110, 23, 52, ${stroke.life * 0.85})`;
+        ctx.lineWidth = 1.5 * stroke.life;
+        ctx.lineCap = "round";
+        ctx.stroke();
+
+        stroke.life -= 0.025;
+      });
+
+      animationFrame = requestAnimationFrame(render);
+    };
+
+    resize();
+    render();
+
+    window.addEventListener("resize", resize);
+    window.addEventListener("pointermove", move);
+    window.addEventListener("pointerdown", down);
+    window.addEventListener("pointerup", up);
+    window.addEventListener("pointercancel", up);
+    window.addEventListener("blur", up);
+
+    return () => {
+      cancelAnimationFrame(animationFrame);
+      window.removeEventListener("resize", resize);
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerdown", down);
+      window.removeEventListener("pointerup", up);
+      window.removeEventListener("pointercancel", up);
+      window.removeEventListener("blur", up);
+    };
+  }, []);
+
+  return (
+    <>
+      <canvas ref={canvasRef} className="cursor-trail" />
+      <div ref={cursorRef} className="custom-cursor" />
+    </>
+  );
+}
+
 function Header({ theme, setTheme }) {
   const [menu, setMenu] = useState(false);
   const links = [
@@ -166,6 +284,55 @@ function Header({ theme, setTheme }) {
   );
 }
 
+
+function IntroScreen({ onComplete }) {
+  const [closing, setClosing] = useState(false);
+
+  useEffect(() => {
+    const closeTimer = window.setTimeout(() => {
+      setClosing(true);
+    }, 2400);
+
+    const finishTimer = window.setTimeout(() => {
+      onComplete();
+    }, 3300);
+
+    return () => {
+      window.clearTimeout(closeTimer);
+      window.clearTimeout(finishTimer);
+    };
+  }, [onComplete]);
+
+  return (
+    <div
+      className={`intro-screen ${closing ? "intro-closing" : ""}`}
+      aria-label="Portfolio introduction"
+    >
+      <div className="intro-content">
+        <span className="intro-small">WELCOME TO MY PORTFOLIO</span>
+
+        <h1 className="intro-name">
+          <span>ALLIYAH MHAY</span>
+          <span>T. ARUTA</span>
+        </h1>
+
+        <div className="intro-line" />
+
+        <p className="intro-role">
+          FULL-STACK WEB DEVELOPER · UI/UX DESIGNER
+        </p>
+      </div>
+
+      <span className="intro-circle" aria-hidden="true" />
+
+      <span className="intro-bottom">
+        DESIGN · DEVELOPMENT · DIGITAL EXPERIENCES
+      </span>
+    </div>
+  );
+}
+
+
 function Hero() {
   return (
     <section className="hero container" id="home">
@@ -208,10 +375,14 @@ function Hero() {
         <div className="art-corner top-left" />
         <div className="art-corner bottom-right" />
         <span className="art-top">A STUDY IN DESIGN & DEVELOPMENT</span>
-        <div className="art-center">
-          <span className="art-monogram">Aa</span>
-          <span className="art-orbit" />
-        </div>
+       <div className="art-center hero-portrait-wrapper">
+  <img
+    src="/images/profile.jpeg"
+    alt="Alliyah Aruta — Full-Stack Web Developer and UI/UX Designer"
+    className="hero-portrait"
+    fetchPriority="high"
+  />
+</div>
         <div className="art-bottom">
           <span>ALLIYAH ARUTA</span>
           <span>PORTFOLIO — 2026</span>
@@ -808,10 +979,14 @@ function Footer() {
   );
 }
 
+
 function App() {
   const [theme, setTheme] = useState(
     () => localStorage.getItem("portfolio-theme") || "light"
   );
+
+  // Controls the opening welcome animation
+  const [showIntro, setShowIntro] = useState(true);
 
   useReveal();
 
@@ -822,7 +997,18 @@ function App() {
 
   return (
     <>
+      {/* Opening animation */}
+      {showIntro && (
+        <IntroScreen onComplete={() => setShowIntro(false)} />
+      )}
+
+      {/* Custom cursor and drag effects */}
+      <CustomCursor />
+
+      {/* Navigation */}
       <Header theme={theme} setTheme={setTheme} />
+
+      {/* Main portfolio */}
       <main>
         <Hero />
         <Marquee />
@@ -835,6 +1021,7 @@ function App() {
         <Education />
         <Contact />
       </main>
+
       <Footer />
     </>
   );

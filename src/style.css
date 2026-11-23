@@ -1459,3 +1459,281 @@ img { display: block; max-width: 100%; }
     transform: none !important;
   }
 }
+
+/* HERO — PROFESSIONAL PORTRAIT */
+
+.hero-portrait-wrapper {
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.hero-portrait {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  inset: 0;
+  object-fit: cover;
+  object-position: center 25%;
+  transition: transform 0.7s ease;
+}
+
+.hero-art:hover .hero-portrait {
+  transform: scale(1.035);
+}
+
+/* Keep decorative labels above the portrait */
+.hero-art .art-top,
+.hero-art .art-bottom {
+  position: relative;
+  z-index: 3;
+}
+
+/* Keep decorative corners visible */
+.hero-art .art-corner {
+  z-index: 4;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-portrait {
+    transition: none;
+  }
+
+  .hero-art:hover .hero-portrait {
+    transform: none;
+  }
+}
+
+
+/* CUSTOM EDITORIAL CURSOR */
+
+@media (hover: hover) and (pointer: fine) {
+  body, a, button {
+    cursor: none;
+  }
+
+  .custom-cursor {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 30px;
+    height: 30px;
+    border: 1px solid var(--burgundy);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 99999;
+    transition:
+      width 0.25s ease,
+      height 0.25s ease,
+      background 0.25s ease;
+    will-change: transform;
+  }
+
+  .custom-cursor::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 3px;
+    height: 3px;
+    background: var(--burgundy);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .custom-cursor.cursor-hover {
+    width: 46px;
+    height: 46px;
+    background: color-mix(
+      in srgb,
+      var(--burgundy) 8%,
+      transparent
+    );
+  }
+
+  .custom-cursor.cursor-down {
+    width: 22px;
+    height: 22px;
+    background: color-mix(
+      in srgb,
+      var(--burgundy) 15%,
+      transparent
+    );
+  }
+
+  .cursor-trail {
+    position: fixed;
+    inset: 0;
+    z-index: 99998;
+    pointer-events: none;
+  }
+}
+
+@media (hover: none), (pointer: coarse) {
+  .custom-cursor,
+  .cursor-trail {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .custom-cursor,
+  .cursor-trail {
+    display: none;
+  }
+}
+
+/* FULL-SCREEN PORTFOLIO INTRO */
+
+.intro-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f4f0e9;
+  color: #2a1018;
+  overflow: hidden;
+  animation: introAppear 0.5s ease both;
+}
+
+.intro-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  padding: 24px;
+}
+
+.intro-small,
+.intro-role,
+.intro-bottom {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+}
+
+.intro-small {
+  display: block;
+  color: #b69b70;
+  margin-bottom: 30px;
+  animation: introFadeUp 0.8s 0.2s both;
+}
+
+.intro-name {
+  display: flex;
+  flex-direction: column;
+  font-family: var(--serif);
+  font-size: clamp(3.8rem, 10vw, 10rem);
+  font-weight: 400;
+  line-height: 0.9;
+  letter-spacing: -0.055em;
+  margin: 0;
+}
+
+.intro-name span {
+  display: block;
+  animation: introFadeUp 1s cubic-bezier(.22,1,.36,1) both;
+}
+
+.intro-name span:first-child {
+  animation-delay: 0.35s;
+}
+
+.intro-name span:last-child {
+  color: #6e1734;
+  font-style: italic;
+  animation-delay: 0.55s;
+}
+
+.intro-line {
+  width: 0;
+  height: 1px;
+  background: #b69b70;
+  margin: 34px auto 20px;
+  animation: introLineGrow 1s 0.85s forwards;
+}
+
+.intro-role {
+  color: #82777b;
+  animation: introFadeUp 0.8s 1s both;
+}
+
+.intro-circle {
+  position: absolute;
+  width: 280px;
+  height: 280px;
+  border: 1px solid rgba(110,23,52,0.15);
+  border-radius: 50%;
+  animation: introCircle 2.8s ease-in-out both;
+}
+
+.intro-bottom {
+  position: absolute;
+  bottom: 35px;
+  color: #82777b;
+  font-size: 9px;
+}
+
+.intro-closing {
+  animation: introExit 0.9s cubic-bezier(.76,0,.24,1) forwards;
+}
+
+@keyframes introAppear {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes introFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(35px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes introLineGrow {
+  to { width: 160px; }
+}
+
+@keyframes introCircle {
+  from {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1.7);
+    opacity: 0.5;
+  }
+}
+
+@keyframes introExit {
+  to {
+    transform: translateY(-100%);
+  }
+}
+
+@media (max-width: 600px) {
+  .intro-name {
+    font-size: clamp(3rem, 13vw, 5rem);
+  }
+
+  .intro-role {
+    font-size: 8px;
+    line-height: 1.8;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .intro-screen,
+  .intro-name span,
+  .intro-small,
+  .intro-role,
+  .intro-circle,
+  .intro-line {
+    animation: none;
+  }
+}
