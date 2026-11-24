@@ -84,30 +84,97 @@ export const projects = [
   }
 ];
 
+
 export const skills = {
-  "Programming Languages": [
-    "HTML5", "CSS3", "JavaScript", "PHP",
-    "Java", "Python", "SQL"
+  "Programming & Web Technologies": [
+    "JavaScript (ES6+)",
+    "JSX",
+    "PHP",
+    "Java",
+    "Python",
+    "SQL",
+    "HTML5",
+    "CSS3"
   ],
-  "Frontend Development": [
-    "React.js", "Vite", "React Router",
-    "Bootstrap 5", "Responsive Web Design"
+
+  "Frameworks & Frontend Development": [
+    "React.js",
+    "React Hooks",
+    "React Router",
+    "State Management",
+    "Component-Based Architecture",
+    "Vite",
+    "Bootstrap 5",
+    "Responsive Web Design",
+    "Web Accessibility",
+    "Intersection Observer API"
   ],
-  "Backend & Integrations": [
-    "PHP", "REST APIs", "Firebase", "Supabase",
-    "Google Gemini AI", "PayMongo", "Brevo"
+
+  "Backend & API Integration": [
+    "PHP",
+    "REST APIs",
+    "Fetch API",
+    "JSON",
+    "Asynchronous Programming (Async/Await)",
+    "API Error Handling",
+    "Firebase",
+    "Supabase",
+    "Google Gemini AI",
+    "PayMongo",
+    "Brevo"
   ],
-  "Databases": [
-    "MySQL", "PostgreSQL", "Database Design",
-    "Row Level Security"
+
+  "Database Management": [
+    "MySQL",
+    "PostgreSQL",
+    "Database Design",
+    "CRUD Operations",
+    "Row-Level Security (RLS)"
   ],
-  "Design & Tools": [
-    "UI/UX Design", "Wireframing", "Prototyping",
-    "Git", "GitHub", "VS Code", "Vercel", "Netlify"
+
+  "Authentication & Security": [
+    "Firebase Authentication",
+    "Supabase Authentication",
+    "Role-Based Access Control (RBAC)",
+    "Authorization",
+    "User Access Management"
   ],
-  "Networking": [
-    "IPv4", "LAN Configuration", "Windows Server",
-    "AD DS", "DNS", "DHCP", "GPO"
+
+  "UI/UX Design": [
+    "Figma",
+    "UI/UX Design",
+    "Wireframing",
+    "Prototyping",
+    "Responsive Interface Design"
+  ],
+
+  "Development Tools & Environment": [
+    "Node.js (Development Tooling)",
+    "npm",
+    "Oxlint",
+    "VS Code",
+    "XAMPP",
+    "phpMyAdmin",
+    "MySQL Workbench"
+  ],
+
+  "Version Control & Deployment": [
+    "Git",
+    "GitHub",
+    "Vercel",
+    "Netlify",
+    "InfinityFree"
+  ],
+
+  "Networking & System Administration": [
+    "IPv4",
+    "LAN Configuration",
+    "Windows Server",
+    "AD DS",
+    "DNS",
+    "DHCP",
+    "GPO",
+    "Router and WAP Configuration"
   ]
 };
 
